@@ -1,5 +1,8 @@
-name: Go
-on: [push]
+on:
+  workflow_dispatch:
+  schedule:
+    # run every 4 hours
+    - cron: '00 */12 * * *'
 jobs:
 
   build:
@@ -7,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - uses: actions/checkout@v3
+      with:
+         repository: 'packwiz/packwiz'
     - name: Set up Go 1.18
       uses: actions/setup-go@v1
       with:
@@ -24,50 +30,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        name: Windows 64-bit
-        path: dist/packwiz_windows_amd64_v1/
-
-#    - name: Upload assets
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: Windows 32-bit
-#        path: dist/packwiz_windows_386/
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
-      with:
-        name: Windows 64-bit ARM
-        path: dist/packwiz_windows_arm64/
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
-      with:
-        name: Linux 64-bit x86
-        path: dist/packwiz_linux_amd64_v1/
-
-#    - name: Upload assets
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: Linux 32-bit x86
-#        path: dist/packwiz_linux_386/
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
-      with:
-        name: Linux 64-bit ARM
-        path: dist/packwiz_linux_arm64/
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
-      with:
-        name: macOS 64-bit x86
-        path: dist/packwiz_darwin_amd64_v1/
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v2
-      with:
-        name: macOS 64-bit ARM
-        path: dist/packwiz_darwin_arm64/
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Development Build"
+          files: dist/packwiz_windows_amd64_v1/packwiz.exe
