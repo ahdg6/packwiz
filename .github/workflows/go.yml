@@ -30,10 +30,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - name: Auto Release(For User who can not download from github actions)
+      uses: "marvinpinto/action-automatic-releases@latest"
       with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
           prerelease: false
           title: "Development Build"
           files: dist/packwiz_windows_amd64_v1/packwiz.exe
