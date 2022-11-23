@@ -3,7 +3,7 @@ package core
 import (
 	"encoding/xml"
 	"errors"
-	"net/http"
+	"github.com/unascribed/FlexVer/go/flexver"
 	"strings"
 )
 
@@ -42,7 +42,7 @@ var ModLoaders = map[string]ModLoaderComponent{
 	"liteloader": {
 		Name:              "liteloader",
 		FriendlyName:      "LiteLoader",
-		VersionListGetter: FetchMavenVersionPrefixedList("http://repo.mumfrey.com/content/repositories/snapshots/com/mumfrey/liteloader/maven-metadata.xml", "LiteLoader"),
+		VersionListGetter: FetchMavenVersionPrefixedList("https://repo.mumfrey.com/content/repositories/snapshots/com/mumfrey/liteloader/maven-metadata.xml", "LiteLoader"),
 	},
 	"quilt": {
 		Name:              "quilt",
@@ -53,7 +53,7 @@ var ModLoaders = map[string]ModLoaderComponent{
 
 func FetchMavenVersionList(url string) func(mcVersion string) ([]string, string, error) {
 	return func(mcVersion string) ([]string, string, error) {
-		res, err := http.Get(url)
+		res, err := GetWithUA(url, "application/xml")
 		if err != nil {
 			return []string{}, "", err
 		}
@@ -69,7 +69,7 @@ func FetchMavenVersionList(url string) func(mcVersion string) ([]string, string,
 
 func FetchMavenVersionPrefixedList(url string, friendlyName string) func(mcVersion string) ([]string, string, error) {
 	return func(mcVersion string) ([]string, string, error) {
-		res, err := http.Get(url)
+		res, err := GetWithUA(url, "application/xml")
 		if err != nil {
 			return []string{}, "", err
 		}
@@ -94,6 +94,8 @@ func FetchMavenVersionPrefixedList(url string, friendlyName string) func(mcVersi
 		if hasPrefixSplitDash(out.Versioning.Latest, mcVersion) {
 			return allowedVersions, out.Versioning.Latest, nil
 		}
+		// Sort list to get largest version
+		flexver.VersionSlice(out.Versioning.Versions.Version).Sort()
 		return allowedVersions, allowedVersions[len(allowedVersions)-1], nil
 	}
 }
